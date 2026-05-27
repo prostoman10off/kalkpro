@@ -18,7 +18,7 @@
     }
 
     .container {
-      max-width: 980px;
+      max-width: 1100px;
       margin: 40px auto;
       background: #fff;
       padding: 30px;
@@ -36,11 +36,28 @@
       color: #6b7280;
       margin-bottom: 25px;
       font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .section {
+      margin-top: 28px;
+      padding-top: 8px;
+    }
+
+    .section h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
     }
 
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 20px;
     }
 
@@ -74,7 +91,10 @@
       line-height: 1.4;
     }
 
-    .tiers-box {
+    .tiers-box,
+    .warning-box,
+    .summary-box,
+    .base-box {
       margin-top: 28px;
       background: #f9fafb;
       border: 1px solid #e5e7eb;
@@ -82,36 +102,85 @@
       padding: 20px;
     }
 
-    .tiers-box h2 {
+    .warning-box {
+      background: #fff7ed;
+      border-color: #fdba74;
+      color: #9a3412;
+    }
+
+    .tiers-box h2,
+    .summary-box h2,
+    .base-box h2 {
       margin-top: 0;
       margin-bottom: 15px;
       font-size: 20px;
     }
 
-    .tiers-grid {
+    .tiers-grid,
+    .summary-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
       gap: 16px;
     }
 
-    .tier-card {
+    .tiers-grid {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .tier-card,
+    .summary-card {
       background: #fff;
       border: 1px solid #e5e7eb;
       border-radius: 12px;
       padding: 16px;
     }
 
-    .tier-card h3 {
+    .tier-card h3,
+    .summary-card h3 {
       margin-top: 0;
       margin-bottom: 10px;
       font-size: 17px;
     }
 
-    .tier-card p {
+    .tier-card p,
+    .summary-card p {
       margin: 0;
       font-size: 14px;
       line-height: 1.5;
       color: #374151;
+    }
+
+    .summary-label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+
+    .summary-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.4;
+    }
+
+    .summary-total .summary-value {
+      color: #0f766e;
+      font-size: 22px;
+    }
+
+    .base-box ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #374151;
+    }
+
+    .base-box li {
+      margin-bottom: 10px;
+      line-height: 1.5;
+      font-size: 14px;
     }
 
     .result {
@@ -159,20 +228,54 @@
       border-left: 4px solid #3b82f6;
       border-radius: 8px;
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.7;
+    }
+
+    .actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .copy-btn {
+      border: none;
+      background: #0f766e;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: #0b5f59;
+    }
+
+    .copy-status {
+      font-size: 14px;
+      color: #2563eb;
+      min-height: 20px;
+    }
+
+    @media (max-width: 1000px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     @media (max-width: 900px) {
+      .grid,
+      .grid-3,
       .tiers-grid {
         grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 700px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
       .container {
         margin: 20px;
         padding: 20px;
@@ -186,6 +289,10 @@
       .row span:last-child {
         white-space: normal;
       }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -193,12 +300,39 @@
   <div class="container">
     <h1>Калькулятор тарифа Base</h1>
     <div class="subtitle">
-      Расчёт стоимости тарифа Base по размеру города, периоду, количеству сценариев, рубрик и изохронов.
+      Расчёт стоимости по тарифу Base: базовый тариф, дополнительные сценарии,
+      рубрики, зоны доступности и дополнительные города.
+    </div>
+
+    <div class="summary-box">
+      <h2>Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">Тир основного города</div>
+          <div class="summary-value" id="summaryTier">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Срок</div>
+          <div class="summary-value" id="summaryPeriod">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Сценарии / рубрики</div>
+          <div class="summary-value" id="summaryParams">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Зоны / доп. города</div>
+          <div class="summary-value" id="summaryCities">—</div>
+        </div>
+        <div class="summary-card summary-total" style="grid-column: 1 / -1;">
+          <div class="summary-label">Итого</div>
+          <div class="summary-value" id="summaryTotal">—</div>
+        </div>
+      </div>
     </div>
 
     <div class="grid">
       <div class="field">
-        <label for="cityTier">Тир города</label>
+        <label for="cityTier">Тир основного города</label>
         <select id="cityTier">
           <option value="A">Тир A</option>
           <option value="B">Тир B</option>
@@ -215,22 +349,22 @@
       </div>
 
       <div class="field">
-        <label for="scenarios">Количество сценариев</label>
+        <label for="scenarios">Количество сценариев всего</label>
         <input type="number" id="scenarios" min="2" max="5" value="2" />
-        <div class="hint">В тариф Base включены 2 сценария.</div>
+        <div class="hint">В Base включены 2 сценария. Каждый дополнительный = 35% от стоимости Base текущего города.</div>
       </div>
 
       <div class="field">
         <label for="rubrics">Количество рубрик 3-го уровня</label>
         <input type="number" id="rubrics" min="1" max="999" value="10" />
-        <div class="hint">В базовую стоимость входит до 10 рубрик.</div>
+        <div class="hint">В Base входит до 10 рубрик. Дополнительные рубрики: 500 ₽/шт, но не более 10 000 ₽.</div>
       </div>
 
       <div class="field full">
-        <label for="isochrones">Общее количество зон доступности (изохронов) на весь период</label>
+        <label for="isochrones">Общее количество зон доступности на весь период</label>
         <input type="number" id="isochrones" min="0" value="140" />
         <div class="hint">
-          В тариф включено: 10 зон × количество дней. Например, на 14 дней — 140, на 30 дней — 300.
+          По умолчанию подставляется включённый объём: 140 для 14 дней и 300 для 30 дней.
         </div>
       </div>
     </div>
@@ -240,11 +374,8 @@
       <div class="tiers-grid">
         <div class="tier-card">
           <h3>Тир A</h3>
-          <p>
-            Москва, Санкт-Петербург, Астана (КЗ), Алматы (КЗ), Минск (РБ)
-          </p>
+          <p>Москва, Санкт-Петербург, Астана (КЗ), Алматы (КЗ), Минск (РБ)</p>
         </div>
-
         <div class="tier-card">
           <h3>Тир B</h3>
           <p>
@@ -253,15 +384,35 @@
             Воронеж, Волгоград, Тюмень, Сочи
           </p>
         </div>
-
         <div class="tier-card">
           <h3>Тир C</h3>
-          <p>
-            Остальные города
-          </p>
+          <p>Остальные города</p>
         </div>
       </div>
     </div>
+
+    <div class="section">
+      <h2>Дополнительные города</h2>
+      <div class="grid-3">
+        <div class="field">
+          <label for="extraCitiesA">Доп. города Тир A</label>
+          <input type="number" id="extraCitiesA" min="0" value="0" />
+        </div>
+        <div class="field">
+          <label for="extraCitiesB">Доп. города Тир B</label>
+          <input type="number" id="extraCitiesB" min="0" value="0" />
+        </div>
+        <div class="field">
+          <label for="extraCitiesC">Доп. города Тир C</label>
+          <input type="number" id="extraCitiesC" min="0" value="0" />
+        </div>
+      </div>
+      <div class="hint" style="margin-top:12px;">
+        В тариф Base уже входит 1 основной город. Здесь указываются только дополнительные города.
+      </div>
+    </div>
+
+    <div class="warning-box" id="warningBox" style="display:none;"></div>
 
     <div class="result">
       <h2>Итог расчёта</h2>
@@ -286,12 +437,36 @@
         <span id="isoPrice">0 ₽</span>
       </div>
 
+      <div class="row">
+        <span>Доплата за дополнительные города</span>
+        <span id="citiesPrice">0 ₽</span>
+      </div>
+
       <div class="row total">
         <span>Итого</span>
         <span id="totalPrice">0 ₽</span>
       </div>
 
       <div class="note" id="details"></div>
+
+      <div class="actions">
+        <button class="copy-btn" id="copyBtn">Скопировать расчёт</button>
+        <div class="copy-status" id="copyStatus"></div>
+      </div>
+    </div>
+
+    <div class="base-box">
+      <h2>Состав тарифа</h2>
+      <ul>
+        <li>1 город</li>
+        <li>Период: 14 или 30 дней</li>
+        <li>До 10 рубрик</li>
+        <li>2 сценария аналитики (Конкуренты и спрос — по умолчанию + 1 сценарий на выбор)</li>
+        <li>AI-агент — 50 запросов в сутки</li>
+        <li>Построение зон доступности: 10 × количество дней тарифа</li>
+        <li>Создание дашбордов и виджетов</li>
+        <li>Ежедневная загрузка данных До 20 МБ</li>
+      </ul>
     </div>
   </div>
 
@@ -302,8 +477,57 @@
       C: { 14: 30000, 30: 50000 }
     };
 
+    let lastDefaultIsochrones = null;
+
     function formatPrice(value) {
       return new Intl.NumberFormat('ru-RU').format(Math.round(value)) + ' ₽';
+    }
+
+    function getTierLabel(tier) {
+      if (tier === 'A') return 'Тир A';
+      if (tier === 'B') return 'Тир B';
+      return 'Тир C';
+    }
+
+    function getDefaultIsochrones(period) {
+      if (period === 14) return 140;
+      if (period === 30) return 300;
+      return 0;
+    }
+
+    function syncIsochronesWithPeriod(force = false) {
+      const period = parseInt(document.getElementById('period').value, 10);
+      const isochronesInput = document.getElementById('isochrones');
+      const newDefault = getDefaultIsochrones(period);
+      const currentValueRaw = isochronesInput.value.trim();
+      const currentValue = currentValueRaw === '' ? null : parseInt(currentValueRaw, 10);
+
+      const shouldReplace =
+        force ||
+        currentValueRaw === '' ||
+        currentValue === lastDefaultIsochrones;
+
+      if (shouldReplace) {
+        isochronesInput.value = newDefault;
+      }
+
+      lastDefaultIsochrones = newDefault;
+    }
+
+    function getScenarioCoefficient(totalScenarios) {
+      if (totalScenarios === 2) return 0.25;
+      if (totalScenarios === 3) return 0.475;
+      if (totalScenarios === 4) return 0.7;
+      return null;
+    }
+
+    function getCitiesDiscount(totalExtraCities) {
+      if (totalExtraCities <= 0) return 1;
+      if (totalExtraCities === 1) return 1;
+      if (totalExtraCities >= 2 && totalExtraCities <= 3) return 0.9;
+      if (totalExtraCities >= 4 && totalExtraCities <= 6) return 0.7;
+      if (totalExtraCities >= 7 && totalExtraCities <= 10) return 0.6;
+      return 0.6;
     }
 
     function calculateIsoPrice(extraIsochrones, period) {
@@ -319,33 +543,36 @@
       } else if (extraPerDay >= 50) {
         isoRate = 10;
       } else if (extraPerDay > 0 && extraPerDay < 10) {
-        // В исходном описании нет отдельной ставки для диапазона менее 10 доп. зон в день.
-        // Здесь применяется ставка первого диапазона.
         isoRate = 30;
       }
 
       return extraIsochrones * isoRate;
     }
 
-    function calculate() {
+    function getCalculationData() {
       const cityTier = document.getElementById('cityTier').value;
       const period = parseInt(document.getElementById('period').value, 10);
       const scenarios = parseInt(document.getElementById('scenarios').value, 10) || 2;
       const rubrics = parseInt(document.getElementById('rubrics').value, 10) || 0;
       const isochrones = parseInt(document.getElementById('isochrones').value, 10) || 0;
 
-      const safeScenarios = Math.max(2, scenarios);
+      const extraCitiesA = parseInt(document.getElementById('extraCitiesA').value, 10) || 0;
+      const extraCitiesB = parseInt(document.getElementById('extraCitiesB').value, 10) || 0;
+      const extraCitiesC = parseInt(document.getElementById('extraCitiesC').value, 10) || 0;
+
+      const safeScenarios = Math.min(5, Math.max(2, scenarios));
       const safeRubrics = Math.max(0, rubrics);
       const safeIsochrones = Math.max(0, isochrones);
+      const safeExtraCitiesA = Math.max(0, extraCitiesA);
+      const safeExtraCitiesB = Math.max(0, extraCitiesB);
+      const safeExtraCitiesC = Math.max(0, extraCitiesC);
 
       const basePrice = pricing[cityTier][period];
 
-      // Сценарии
       const includedScenarios = 2;
       const extraScenarios = Math.max(0, safeScenarios - includedScenarios);
       const scenariosPrice = basePrice * 0.35 * extraScenarios;
 
-      // Рубрики
       const includedRubrics = 10;
       const extraRubrics = Math.max(0, safeRubrics - includedRubrics);
       let rubricsPrice = 0;
@@ -357,36 +584,149 @@
         }
       }
 
-      // Изохроны
       const includedIsochrones = 10 * period;
       const extraIsochrones = Math.max(0, safeIsochrones - includedIsochrones);
       const isoPrice = calculateIsoPrice(extraIsochrones, period);
 
-      const total = basePrice + scenariosPrice + rubricsPrice + isoPrice;
+      const totalExtraCities = safeExtraCitiesA + safeExtraCitiesB + safeExtraCitiesC;
+      const scenarioCoefficient = getScenarioCoefficient(safeScenarios);
+      const citiesDiscount = getCitiesDiscount(totalExtraCities);
 
-      document.getElementById('basePrice').textContent = formatPrice(basePrice);
-      document.getElementById('scenariosPrice').textContent = formatPrice(scenariosPrice);
-      document.getElementById('rubricsPrice').textContent = formatPrice(rubricsPrice);
-      document.getElementById('isoPrice').textContent = formatPrice(isoPrice);
-      document.getElementById('totalPrice').textContent = formatPrice(total);
+      const rawCitiesBaseSum =
+        (pricing.A[period] * safeExtraCitiesA) +
+        (pricing.B[period] * safeExtraCitiesB) +
+        (pricing.C[period] * safeExtraCitiesC);
+
+      let citiesPrice = 0;
+      let warningMessage = '';
+
+      if (totalExtraCities > 0) {
+        if (scenarioCoefficient === null) {
+          warningMessage = 'Для расчёта дополнительных городов при 5 сценариях коэффициент не указан в документации. Поэтому доплата за города не рассчитана.';
+        } else {
+          citiesPrice = rawCitiesBaseSum * scenarioCoefficient * citiesDiscount;
+        }
+      }
+
+      const total = basePrice + scenariosPrice + rubricsPrice + isoPrice + citiesPrice;
+
+      return {
+        cityTier,
+        period,
+        scenarios: safeScenarios,
+        rubrics: safeRubrics,
+        isochrones: safeIsochrones,
+        basePrice,
+        extraScenarios,
+        scenariosPrice,
+        extraRubrics,
+        rubricsPrice,
+        includedIsochrones,
+        extraIsochrones,
+        isoPrice,
+        extraCitiesA: safeExtraCitiesA,
+        extraCitiesB: safeExtraCitiesB,
+        extraCitiesC: safeExtraCitiesC,
+        totalExtraCities,
+        citiesPrice,
+        warningMessage,
+        total
+      };
+    }
+
+    function renderCalculation() {
+      const data = getCalculationData();
+
+      document.getElementById('basePrice').textContent = formatPrice(data.basePrice);
+      document.getElementById('scenariosPrice').textContent = formatPrice(data.scenariosPrice);
+      document.getElementById('rubricsPrice').textContent = formatPrice(data.rubricsPrice);
+      document.getElementById('isoPrice').textContent = formatPrice(data.isoPrice);
+      document.getElementById('citiesPrice').textContent = formatPrice(data.citiesPrice);
+      document.getElementById('totalPrice').textContent = formatPrice(data.total);
+
+      document.getElementById('summaryTier').textContent = getTierLabel(data.cityTier);
+      document.getElementById('summaryPeriod').textContent = `${data.period} дней`;
+      document.getElementById('summaryParams').textContent = `${data.scenarios} сценариев / ${data.rubrics} рубрик`;
+      document.getElementById('summaryCities').textContent = `${data.isochrones} зон / ${data.totalExtraCities} доп. городов`;
+      document.getElementById('summaryTotal').textContent = formatPrice(data.total);
+
+      const warningBox = document.getElementById('warningBox');
+      if (warningBox) {
+        if (data.warningMessage) {
+          warningBox.style.display = 'block';
+          warningBox.textContent = data.warningMessage;
+        } else {
+          warningBox.style.display = 'none';
+          warningBox.textContent = '';
+        }
+      }
 
       document.getElementById('details').innerHTML = `
         <strong>Пояснение расчёта:</strong><br>
-        • База для выбранного тира и срока: ${formatPrice(basePrice)}<br>
-        • Включено сценариев: 2, дополнительных: ${extraScenarios}<br>
+        • База для выбранного тира и срока: ${formatPrice(data.basePrice)}<br>
+        • Включено сценариев: 2, дополнительных: ${data.extraScenarios}<br>
         • Доп. сценарии: 35% от Base за каждый<br>
-        • Включено рубрик: 10, дополнительных: ${extraRubrics}<br>
-        • Доп. рубрики: 500 ₽/шт, но максимум 10 000 ₽ как категория 2-го уровня<br>
-        • Включено зон доступности: ${includedIsochrones}<br>
-        • Доп. зон доступности: ${extraIsochrones}
+        • Включено рубрик: 10, дополнительных: ${data.extraRubrics}<br>
+        • Включено зон доступности: ${data.includedIsochrones}<br>
+        • Доп. зон доступности: ${data.extraIsochrones}<br>
+        • Доп. городов Тир A: ${data.extraCitiesA}, Тир B: ${data.extraCitiesB}, Тир C: ${data.extraCitiesC}<br>
+        • Всего дополнительных городов: ${data.totalExtraCities}
       `;
     }
 
-    document.querySelectorAll('select, input').forEach((el) => {
-      el.addEventListener('input', calculate);
+    async function copyCalculation() {
+      const data = getCalculationData();
+      const copyStatus = document.getElementById('copyStatus');
+
+      const lines = [
+        'Расчёт тарифа Base',
+        `Тир основного города: ${getTierLabel(data.cityTier)}`,
+        `Срок тарифа: ${data.period} дней`,
+        `Количество сценариев: ${data.scenarios}`,
+        `Количество рубрик: ${data.rubrics}`,
+        `Количество зон доступности: ${data.isochrones}`,
+        `Доп. города Тир A: ${data.extraCitiesA}`,
+        `Доп. города Тир B: ${data.extraCitiesB}`,
+        `Доп. города Тир C: ${data.extraCitiesC}`,
+        '',
+        `Базовая стоимость: ${formatPrice(data.basePrice)}`,
+        `Доплата за сценарии: ${formatPrice(data.scenariosPrice)}`,
+        `Доплата за рубрики: ${formatPrice(data.rubricsPrice)}`,
+        `Доплата за зоны доступности: ${formatPrice(data.isoPrice)}`,
+        `Доплата за дополнительные города: ${formatPrice(data.citiesPrice)}`,
+        `Итого: ${formatPrice(data.total)}`
+      ];
+
+      if (data.warningMessage) {
+        lines.push('', `Важно: ${data.warningMessage}`);
+      }
+
+      try {
+        await navigator.clipboard.writeText(lines.join('\n'));
+        copyStatus.textContent = 'Расчёт скопирован';
+        setTimeout(() => {
+          copyStatus.textContent = '';
+        }, 2500);
+      } catch (error) {
+        copyStatus.textContent = 'Не удалось скопировать';
+      }
+    }
+
+    document.querySelectorAll('input').forEach((el) => {
+      el.addEventListener('input', renderCalculation);
     });
 
-    calculate();
+    document.getElementById('cityTier').addEventListener('change', renderCalculation);
+
+    document.getElementById('period').addEventListener('change', () => {
+      syncIsochronesWithPeriod(false);
+      renderCalculation();
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', copyCalculation);
+
+    syncIsochronesWithPeriod(true);
+    renderCalculation();
   </script>
 </body>
 </html>
