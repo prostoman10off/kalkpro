@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Калькулятор тарифа Base</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: #f5f7fb;
@@ -14,17 +18,24 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 980px;
       margin: 40px auto;
       background: #fff;
       padding: 30px;
       border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     }
 
     h1 {
       margin-top: 0;
+      margin-bottom: 10px;
       font-size: 28px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 25px;
+      font-size: 14px;
     }
 
     .grid {
@@ -38,20 +49,69 @@
       flex-direction: column;
     }
 
+    .full {
+      grid-column: 1 / -1;
+    }
+
     label {
       font-weight: 600;
       margin-bottom: 8px;
     }
 
-    select, input {
-      padding: 12px;
+    select,
+    input {
+      padding: 12px 14px;
       border: 1px solid #d1d5db;
       border-radius: 10px;
       font-size: 16px;
+      background: #fff;
     }
 
-    .full {
-      grid-column: 1 / -1;
+    .hint {
+      margin-top: 8px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .tiers-box {
+      margin-top: 28px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .tiers-box h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .tiers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .tier-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .tier-card h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 17px;
+    }
+
+    .tier-card p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #374151;
     }
 
     .result {
@@ -64,29 +124,32 @@
 
     .result h2 {
       margin-top: 0;
+      margin-bottom: 16px;
     }
 
     .row {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
+      align-items: flex-start;
       gap: 20px;
+      padding: 10px 0;
+      border-bottom: 1px solid #ececec;
     }
 
     .row:last-child {
       border-bottom: none;
     }
 
+    .row span:last-child {
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
     .total {
       font-size: 24px;
       font-weight: 700;
       color: #0f766e;
-    }
-
-    .muted {
-      color: #6b7280;
-      font-size: 14px;
+      padding-top: 16px;
     }
 
     .note {
@@ -96,11 +159,32 @@
       border-left: 4px solid #3b82f6;
       border-radius: 8px;
       font-size: 14px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .tiers-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 700px) {
       .grid {
         grid-template-columns: 1fr;
+      }
+
+      .container {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      .row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .row span:last-child {
+        white-space: normal;
       }
     }
   </style>
@@ -108,17 +192,17 @@
 <body>
   <div class="container">
     <h1>Калькулятор тарифа Base</h1>
-    <p class="muted">
-      Расчет стоимости по параметрам тарифа 2ГИС Про Base
-    </p>
+    <div class="subtitle">
+      Расчёт стоимости тарифа Base по размеру города, периоду, количеству сценариев, рубрик и изохронов.
+    </div>
 
     <div class="grid">
       <div class="field">
-        <label for="cityTier">Тип города</label>
+        <label for="cityTier">Тир города</label>
         <select id="cityTier">
-          <option value="A">Тир А — Москва, Санкт-Петербург, Астана, Алматы, Минск</option>
-          <option value="B">Тир Б — крупные города</option>
-          <option value="C">Тир С — остальные города</option>
+          <option value="A">Тир A</option>
+          <option value="B">Тир B</option>
+          <option value="C">Тир C</option>
         </select>
       </div>
 
@@ -133,24 +217,54 @@
       <div class="field">
         <label for="scenarios">Количество сценариев</label>
         <input type="number" id="scenarios" min="2" max="5" value="2" />
+        <div class="hint">В тариф Base включены 2 сценария.</div>
       </div>
 
       <div class="field">
         <label for="rubrics">Количество рубрик 3-го уровня</label>
-        <input type="number" id="rubrics" min="1" value="10" />
+        <input type="number" id="rubrics" min="1" max="999" value="10" />
+        <div class="hint">В базовую стоимость входит до 10 рубрик.</div>
       </div>
 
       <div class="field full">
-        <label for="isochrones">Общее количество изохронов на весь период</label>
+        <label for="isochrones">Общее количество зон доступности (изохронов) на весь период</label>
         <input type="number" id="isochrones" min="0" value="140" />
-        <div class="muted">
-          В тариф включено: 10 × число дней. Например, на 14 дней — 140, на 30 дней — 300.
+        <div class="hint">
+          В тариф включено: 10 зон × количество дней. Например, на 14 дней — 140, на 30 дней — 300.
+        </div>
+      </div>
+    </div>
+
+    <div class="tiers-box">
+      <h2>Соответствие городов тирам</h2>
+      <div class="tiers-grid">
+        <div class="tier-card">
+          <h3>Тир A</h3>
+          <p>
+            Москва, Санкт-Петербург, Астана (КЗ), Алматы (КЗ), Минск (РБ)
+          </p>
+        </div>
+
+        <div class="tier-card">
+          <h3>Тир B</h3>
+          <p>
+            Новосибирск, Екатеринбург, Нижний Новгород, Казань, Челябинск, Омск,
+            Самара, Ростов-на-Дону, Уфа, Красноярск, Краснодар, Пермь,
+            Воронеж, Волгоград, Тюмень, Сочи
+          </p>
+        </div>
+
+        <div class="tier-card">
+          <h3>Тир C</h3>
+          <p>
+            Остальные города
+          </p>
         </div>
       </div>
     </div>
 
     <div class="result">
-      <h2>Итог расчета</h2>
+      <h2>Итог расчёта</h2>
 
       <div class="row">
         <span>Базовая стоимость</span>
@@ -168,7 +282,7 @@
       </div>
 
       <div class="row">
-        <span>Доплата за изохроны</span>
+        <span>Доплата за зоны доступности</span>
         <span id="isoPrice">0 ₽</span>
       </div>
 
@@ -192,6 +306,27 @@
       return new Intl.NumberFormat('ru-RU').format(Math.round(value)) + ' ₽';
     }
 
+    function calculateIsoPrice(extraIsochrones, period) {
+      if (extraIsochrones <= 0) return 0;
+
+      const extraPerDay = extraIsochrones / period;
+      let isoRate = 0;
+
+      if (extraPerDay >= 10 && extraPerDay < 20) {
+        isoRate = 30;
+      } else if (extraPerDay >= 20 && extraPerDay < 50) {
+        isoRate = 20;
+      } else if (extraPerDay >= 50) {
+        isoRate = 10;
+      } else if (extraPerDay > 0 && extraPerDay < 10) {
+        // В исходном описании нет отдельной ставки для диапазона менее 10 доп. зон в день.
+        // Здесь применяется ставка первого диапазона.
+        isoRate = 30;
+      }
+
+      return extraIsochrones * isoRate;
+    }
+
     function calculate() {
       const cityTier = document.getElementById('cityTier').value;
       const period = parseInt(document.getElementById('period').value, 10);
@@ -199,16 +334,20 @@
       const rubrics = parseInt(document.getElementById('rubrics').value, 10) || 0;
       const isochrones = parseInt(document.getElementById('isochrones').value, 10) || 0;
 
+      const safeScenarios = Math.max(2, scenarios);
+      const safeRubrics = Math.max(0, rubrics);
+      const safeIsochrones = Math.max(0, isochrones);
+
       const basePrice = pricing[cityTier][period];
 
       // Сценарии
       const includedScenarios = 2;
-      const extraScenarios = Math.max(0, scenarios - includedScenarios);
+      const extraScenarios = Math.max(0, safeScenarios - includedScenarios);
       const scenariosPrice = basePrice * 0.35 * extraScenarios;
 
       // Рубрики
       const includedRubrics = 10;
-      const extraRubrics = Math.max(0, rubrics - includedRubrics);
+      const extraRubrics = Math.max(0, safeRubrics - includedRubrics);
       let rubricsPrice = 0;
 
       if (extraRubrics > 0) {
@@ -220,25 +359,9 @@
 
       // Изохроны
       const includedIsochrones = 10 * period;
-      const extraIsochrones = Math.max(0, isochrones - includedIsochrones);
-      const extraPerDay = extraIsochrones / period;
+      const extraIsochrones = Math.max(0, safeIsochrones - includedIsochrones);
+      const isoPrice = calculateIsoPrice(extraIsochrones, period);
 
-      let isoRate = 0;
-      if (extraIsochrones > 0) {
-        if (extraPerDay >= 10 && extraPerDay < 20) {
-          isoRate = 30;
-        } else if (extraPerDay >= 20 && extraPerDay < 50) {
-          isoRate = 20;
-        } else if (extraPerDay >= 50) {
-          isoRate = 10;
-        } else if (extraPerDay > 0 && extraPerDay < 10) {
-          // В документе нет отдельной ставки для <10 доп. зон/день.
-          // Здесь берем ставку первого диапазона как наиболее безопасную.
-          isoRate = 30;
-        }
-      }
-
-      const isoPrice = extraIsochrones * isoRate;
       const total = basePrice + scenariosPrice + rubricsPrice + isoPrice;
 
       document.getElementById('basePrice').textContent = formatPrice(basePrice);
@@ -248,20 +371,18 @@
       document.getElementById('totalPrice').textContent = formatPrice(total);
 
       document.getElementById('details').innerHTML = `
-        <strong>Пояснение расчета:</strong><br>
-        • База для выбранного города и срока: ${formatPrice(basePrice)}<br>
+        <strong>Пояснение расчёта:</strong><br>
+        • База для выбранного тира и срока: ${formatPrice(basePrice)}<br>
         • Включено сценариев: 2, дополнительных: ${extraScenarios}<br>
         • Доп. сценарии: 35% от Base за каждый<br>
         • Включено рубрик: 10, дополнительных: ${extraRubrics}<br>
         • Доп. рубрики: 500 ₽/шт, но максимум 10 000 ₽ как категория 2-го уровня<br>
-        • Включено изохронов: ${includedIsochrones}<br>
-        • Доп. изохронов: ${extraIsochrones}<br>
-        • Доп. изохронов в день: ${extraPerDay.toFixed(2)}<br>
-        • Ставка за изохрону: ${isoRate ? formatPrice(isoRate).replace(' ₽', ' ₽/шт') : '0 ₽/шт'}
+        • Включено зон доступности: ${includedIsochrones}<br>
+        • Доп. зон доступности: ${extraIsochrones}
       `;
     }
 
-    document.querySelectorAll('select, input').forEach(el => {
+    document.querySelectorAll('select, input').forEach((el) => {
       el.addEventListener('input', calculate);
     });
 
